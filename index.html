@@ -1,0 +1,118 @@
+```html
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EdgeJournal</title>
+
+  <style>
+    body{
+      margin:0;
+      font-family:Arial, sans-serif;
+      background:#dcdcdc;
+      color:#111;
+    }
+
+    .container{
+      padding:40px;
+    }
+
+    .title{
+      font-size:48px;
+      font-weight:bold;
+      margin-bottom:10px;
+    }
+
+    .subtitle{
+      font-size:20px;
+      color:#444;
+      margin-bottom:40px;
+    }
+
+    .dashboard{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:20px;
+    }
+
+    .card{
+      background:white;
+      border-radius:18px;
+      padding:25px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .card h3{
+      margin:0;
+      font-size:18px;
+      color:#666;
+    }
+
+    .card p{
+      margin-top:15px;
+      font-size:30px;
+      font-weight:bold;
+    }
+
+    .green{
+      color:#1f9d55;
+    }
+
+    .red{
+      color:#d64545;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="title">
+      EdgeJournal
+    </div>
+
+    <div class="subtitle">
+      Professional Trading Journal
+    </div>
+
+    <div class="dashboard">
+
+      <div class="card">
+        <h3>Equity Attuale</h3>
+        <p>$12,450</p>
+      </div>
+
+      <div class="card">
+        <h3>Profitto Totale</h3>
+        <p class="green">+$2,340</p>
+      </div>
+
+      <div class="card">
+        <h3>Win Rate</h3>
+        <p>68%</p>
+      </div>
+
+      <div class="card">
+        <h3>Giorno Migliore</h3>
+        <p class="green">+$420</p>
+      </div>
+
+      <div class="card">
+        <h3>Giorno Peggiore</h3>
+        <p class="red">-$180</p>
+      </div>
+
+      <div class="card">
+        <h3>Profitto Medio</h3>
+        <p class="green">+$84</p>
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+</html>
+```
