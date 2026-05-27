@@ -1,6 +1,6 @@
-```html
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -138,6 +138,18 @@ th{
 color:#6b7280;
 }
 
+/* PAGE CONTENT */
+
+.page-content{
+margin-top:30px;
+background:white;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-size:18px;
+line-height:1.7;
+}
+
 </style>
 </head>
 
@@ -150,26 +162,42 @@ EdgeJournal
 </div>
 
 <div class="menu">
-<button onclick="alert('Dashboard cliccata!')">Dashboard</button>
-<button onclick="alert('Pagina Trades')">Trades</button>
-<button onclick="alert('Pagina Analytics')">Analytics</button>
-<button onclick="alert('Pagina Calendario')">Calendario</button>
-<button onclick="alert('Pagina Settings')">Settings</button>
+
+<button onclick="showPage('dashboard')">
+Dashboard
+</button>
+
+<button onclick="showPage('trades')">
+Trades
+</button>
+
+<button onclick="showPage('analytics')">
+Analytics
+</button>
+
+<button onclick="showPage('calendar')">
+Calendario
+</button>
+
+<button onclick="showPage('settings')">
+Settings
+</button>
+
 </div>
 
 </div>
 
 <div class="main">
 
-<div class="title">
+<div class="title" id="pageTitle">
 Dashboard
 </div>
 
-<div class="subtitle">
+<div class="subtitle" id="pageSubtitle">
 Benvenuto nel tuo Trading Journal
 </div>
 
-<div class="cards">
+<div class="cards" id="cardsSection">
 
 <div class="card">
 <div class="card-title">Equity</div>
@@ -193,7 +221,7 @@ Benvenuto nel tuo Trading Journal
 
 </div>
 
-<div class="table-box">
+<div class="table-box" id="tableSection">
 
 <h2>Ultimi Trade</h2>
 
@@ -227,10 +255,128 @@ Benvenuto nel tuo Trading Journal
 
 </div>
 
+<div class="page-content" id="dynamicContent">
+
+Questa è la dashboard principale del tuo EdgeJournal.
+
 </div>
+
+</div>
+
+<script>
+
+function showPage(page){
+
+const title = document.getElementById("pageTitle");
+const subtitle = document.getElementById("pageSubtitle");
+const content = document.getElementById("dynamicContent");
+
+if(page === "dashboard"){
+
+title.innerText = "Dashboard";
+
+subtitle.innerText = "Benvenuto nel tuo Trading Journal";
+
+content.innerHTML = `
+La dashboard mostra:
+<ul>
+<li>Equity totale</li>
+<li>Performance account</li>
+<li>Ultimi trade</li>
+<li>Statistiche generali</li>
+</ul>
+`;
+
+}
+
+if(page === "trades"){
+
+title.innerText = "Trades";
+
+subtitle.innerText = "Gestione operazioni trading";
+
+content.innerHTML = `
+<h3>Lista Trades</h3>
+
+<p>Qui potrai:</p>
+
+<ul>
+<li>Aggiungere trade</li>
+<li>Modificare trade</li>
+<li>Eliminare trade</li>
+<li>Inserire screenshot</li>
+</ul>
+`;
+
+}
+
+if(page === "analytics"){
+
+title.innerText = "Analytics";
+
+subtitle.innerText = "Statistiche e performance";
+
+content.innerHTML = `
+<h3>Analytics</h3>
+
+<p>Qui vedrai:</p>
+
+<ul>
+<li>Win Rate</li>
+<li>Profit Factor</li>
+<li>Drawdown</li>
+<li>Performance mensile</li>
+</ul>
+`;
+
+}
+
+if(page === "calendar"){
+
+title.innerText = "Calendario";
+
+subtitle.innerText = "Calendario operazioni";
+
+content.innerHTML = `
+<h3>Calendario Trading</h3>
+
+<p>Qui appariranno:</p>
+
+<ul>
+<li>Trade giornalieri</li>
+<li>Eventi economici</li>
+<li>Storico operazioni</li>
+</ul>
+`;
+
+}
+
+if(page === "settings"){
+
+title.innerText = "Settings";
+
+subtitle.innerText = "Configurazione piattaforma";
+
+content.innerHTML = `
+<h3>Impostazioni</h3>
+
+<p>Qui potrai configurare:</p>
+
+<ul>
+<li>Profilo utente</li>
+<li>Tema</li>
+<li>Notifiche</li>
+<li>Broker</li>
+</ul>
+`;
+
+}
+
+}
+
+</script>
 
 </body>
 </html>
-```
 
 
