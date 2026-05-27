@@ -13,13 +13,14 @@
 margin:0;
 padding:0;
 box-sizing:border-box;
-font-family:Arial;
+font-family:Arial,sans-serif;
 }
 
 body{
 display:flex;
 background:#f3f4f6;
 height:100vh;
+overflow:hidden;
 }
 
 /* SIDEBAR */
@@ -54,6 +55,7 @@ color:white;
 cursor:pointer;
 font-size:16px;
 transition:0.2s;
+text-align:left;
 }
 
 .menu button:hover{
@@ -120,6 +122,7 @@ background:white;
 padding:25px;
 border-radius:20px;
 box-shadow:0 10px 25px rgba(0,0,0,0.08);
+margin-bottom:30px;
 }
 
 table{
@@ -138,22 +141,36 @@ th{
 color:#6b7280;
 }
 
-/* PAGE CONTENT */
+/* DYNAMIC CONTENT */
 
 .page-content{
-margin-top:30px;
 background:white;
 padding:30px;
 border-radius:20px;
 box-shadow:0 10px 25px rgba(0,0,0,0.08);
 font-size:18px;
-line-height:1.7;
+line-height:1.8;
+}
+
+.page-content h3{
+margin-bottom:15px;
+}
+
+.page-content ul{
+margin-top:15px;
+padding-left:20px;
+}
+
+.page-content li{
+margin-bottom:10px;
 }
 
 </style>
 </head>
 
 <body>
+
+<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -187,6 +204,8 @@ Settings
 
 </div>
 
+<!-- MAIN -->
+
 <div class="main">
 
 <div class="title" id="pageTitle">
@@ -197,7 +216,11 @@ Dashboard
 Benvenuto nel tuo Trading Journal
 </div>
 
-<div class="cards" id="cardsSection">
+<!-- DASHBOARD SECTION -->
+
+<div id="dashboardSection">
+
+<div class="cards">
 
 <div class="card">
 <div class="card-title">Equity</div>
@@ -221,7 +244,7 @@ Benvenuto nel tuo Trading Journal
 
 </div>
 
-<div class="table-box" id="tableSection">
+<div class="table-box">
 
 <h2>Ultimi Trade</h2>
 
@@ -255,6 +278,10 @@ Benvenuto nel tuo Trading Journal
 
 </div>
 
+</div>
+
+<!-- DYNAMIC SECTION -->
+
 <div class="page-content" id="dynamicContent">
 
 Questa è la dashboard principale del tuo EdgeJournal.
@@ -270,26 +297,40 @@ function showPage(page){
 const title = document.getElementById("pageTitle");
 const subtitle = document.getElementById("pageSubtitle");
 const content = document.getElementById("dynamicContent");
+const dashboard = document.getElementById("dashboardSection");
+
+/* DASHBOARD */
 
 if(page === "dashboard"){
+
+dashboard.style.display = "block";
+content.style.display = "block";
 
 title.innerText = "Dashboard";
 
 subtitle.innerText = "Benvenuto nel tuo Trading Journal";
 
 content.innerHTML = `
-La dashboard mostra:
+<h3>Panoramica Account</h3>
+
+<p>Qui puoi monitorare rapidamente:</p>
+
 <ul>
 <li>Equity totale</li>
-<li>Performance account</li>
-<li>Ultimi trade</li>
-<li>Statistiche generali</li>
+<li>Profitto account</li>
+<li>Win Rate</li>
+<li>Ultimi trade eseguiti</li>
 </ul>
 `;
 
 }
 
+/* TRADES */
+
 if(page === "trades"){
+
+dashboard.style.display = "none";
+content.style.display = "block";
 
 title.innerText = "Trades";
 
@@ -298,44 +339,56 @@ subtitle.innerText = "Gestione operazioni trading";
 content.innerHTML = `
 <h3>Lista Trades</h3>
 
-<p>Qui potrai:</p>
+<p>In questa sezione potrai:</p>
 
 <ul>
-<li>Aggiungere trade</li>
-<li>Modificare trade</li>
+<li>Aggiungere nuovi trade</li>
+<li>Modificare operazioni</li>
 <li>Eliminare trade</li>
-<li>Inserire screenshot</li>
+<li>Caricare screenshot</li>
+<li>Scrivere note operative</li>
 </ul>
 `;
 
 }
 
+/* ANALYTICS */
+
 if(page === "analytics"){
+
+dashboard.style.display = "none";
+content.style.display = "block";
 
 title.innerText = "Analytics";
 
 subtitle.innerText = "Statistiche e performance";
 
 content.innerHTML = `
-<h3>Analytics</h3>
+<h3>Analytics Avanzati</h3>
 
-<p>Qui vedrai:</p>
+<p>Qui troverai:</p>
 
 <ul>
-<li>Win Rate</li>
+<li>Win Rate dettagliato</li>
 <li>Profit Factor</li>
 <li>Drawdown</li>
 <li>Performance mensile</li>
+<li>Analisi rischio/rendimento</li>
 </ul>
 `;
 
 }
 
+/* CALENDAR */
+
 if(page === "calendar"){
+
+dashboard.style.display = "none";
+content.style.display = "block";
 
 title.innerText = "Calendario";
 
-subtitle.innerText = "Calendario operazioni";
+subtitle.innerText = "Storico e pianificazione";
 
 content.innerHTML = `
 <h3>Calendario Trading</h3>
@@ -344,14 +397,20 @@ content.innerHTML = `
 
 <ul>
 <li>Trade giornalieri</li>
-<li>Eventi economici</li>
 <li>Storico operazioni</li>
+<li>Eventi economici</li>
+<li>Sessioni operative</li>
 </ul>
 `;
 
 }
 
+/* SETTINGS */
+
 if(page === "settings"){
+
+dashboard.style.display = "none";
+content.style.display = "block";
 
 title.innerText = "Settings";
 
@@ -360,13 +419,14 @@ subtitle.innerText = "Configurazione piattaforma";
 content.innerHTML = `
 <h3>Impostazioni</h3>
 
-<p>Qui potrai configurare:</p>
+<p>Da qui potrai gestire:</p>
 
 <ul>
 <li>Profilo utente</li>
-<li>Tema</li>
+<li>Tema grafico</li>
+<li>Broker collegati</li>
 <li>Notifiche</li>
-<li>Broker</li>
+<li>Preferenze account</li>
 </ul>
 `;
 
