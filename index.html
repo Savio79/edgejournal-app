@@ -7,6 +7,8 @@
 
 <title>EdgeJournal Pro</title>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
 
 *{
@@ -33,7 +35,8 @@ color:white;
 
 body.dark .card,
 body.dark .table-box,
-body.dark .page-content{
+body.dark .page-content,
+body.dark .analytics-box{
 background:#1f2937;
 color:white;
 }
@@ -218,6 +221,34 @@ font-size:18px;
 line-height:1.8;
 }
 
+/* ANALYTICS */
+
+.analytics-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:30px;
+margin-bottom:30px;
+}
+
+.analytics-box{
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.analytics-title{
+font-size:18px;
+margin-bottom:10px;
+color:#6b7280;
+}
+
+.analytics-value{
+font-size:28px;
+font-weight:bold;
+}
+
 /* SETTINGS */
 
 .setting-btn{
@@ -235,12 +266,17 @@ color:white;
 background:#374151;
 }
 
+canvas{
+margin-top:30px;
+background:white;
+padding:20px;
+border-radius:20px;
+}
+
 </style>
 </head>
 
 <body>
-
-<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -252,10 +288,6 @@ EdgeJournal
 
 <button onclick="showPage('dashboard')">
 Dashboard
-</button>
-
-<button onclick="showPage('trades')">
-Trades
 </button>
 
 <button onclick="showPage('analytics')">
@@ -274,8 +306,6 @@ Settings
 
 </div>
 
-<!-- MAIN -->
-
 <div class="main">
 
 <div class="title" id="pageTitle">
@@ -285,8 +315,6 @@ Dashboard
 <div class="subtitle" id="pageSubtitle">
 Benvenuto nel tuo Trading Journal
 </div>
-
-<!-- DASHBOARD -->
 
 <div id="dashboardSection">
 
@@ -301,7 +329,7 @@ Benvenuto nel tuo Trading Journal
 
 <div class="card">
 <div class="card-title">Profitto Totale</div>
-<div class="card-value green" id="profitValue">
+<div class="card-value" id="profitValue">
 0€
 </div>
 </div>
@@ -326,9 +354,9 @@ Benvenuto nel tuo Trading Journal
 
 <h2>Ultimi Trade</h2>
 
-<!-- FORM -->
-
 <div class="trade-form">
+
+<input type="date" id="dateInput">
 
 <input type="text" id="assetInput" placeholder="Asset">
 
@@ -345,11 +373,10 @@ Aggiungi Trade
 
 </div>
 
-<!-- TABLE -->
-
 <table id="tradeTable">
 
 <tr>
+<th>Data</th>
 <th>Asset</th>
 <th>Tipo</th>
 <th>Profit/Loss</th>
@@ -362,8 +389,6 @@ Aggiungi Trade
 
 </div>
 
-<!-- DYNAMIC CONTENT -->
-
 <div class="page-content" id="dynamicContent">
 
 Dashboard caricata.
@@ -374,14 +399,12 @@ Dashboard caricata.
 
 <script>
 
-/* STORAGE */
-
 let trades = JSON.parse(localStorage.getItem("trades")) || [];
 
 let equity =
 localStorage.getItem("equity") || 0;
 
-/* FIRST EQUITY SETUP */
+/* FIRST EQUITY */
 
 if(equity == 0){
 
@@ -414,6 +437,7 @@ const table = document.getElementById("tradeTable");
 
 table.innerHTML = `
 <tr>
+<th>Data</th>
 <th>Asset</th>
 <th>Tipo</th>
 <th>Profit/Loss</th>
@@ -425,13 +449,14 @@ trades.forEach((trade,index)=>{
 
 const row = table.insertRow(-1);
 
-const cell1 = row.insertCell(0);
-const cell2 = row.insertCell(1);
-const cell3 = row.insertCell(2);
-const cell4 = row.insertCell(3);
+const cell0 = row.insertCell(0);
+const cell1 = row.insertCell(1);
+const cell2 = row.insertCell(2);
+const cell3 = row.insertCell(3);
+const cell4 = row.insertCell(4);
 
+cell0.innerHTML = trade.date;
 cell1.innerHTML = trade.asset;
-
 cell2.innerHTML = trade.type;
 
 if(parseFloat(trade.profit)>=0){
@@ -461,6 +486,9 @@ updateStats();
 
 function addTrade(){
 
+const date =
+document.getElementById("dateInput").value;
+
 const asset =
 document.getElementById("assetInput").value;
 
@@ -470,7 +498,7 @@ document.getElementById("typeInput").value;
 const profit =
 document.getElementById("profitInput").value;
 
-if(asset === "" || profit === ""){
+if(date === "" || asset === "" || profit === ""){
 
 alert("Compila tutti i campi");
 
@@ -479,6 +507,7 @@ return;
 }
 
 trades.push({
+date: date,
 asset: asset,
 type: type,
 profit: profit
@@ -488,13 +517,13 @@ saveTrades();
 
 loadTrades();
 
+document.getElementById("dateInput").value = "";
 document.getElementById("assetInput").value = "";
-
 document.getElementById("profitInput").value = "";
 
 }
 
-/* DELETE TRADE */
+/* DELETE */
 
 function deleteTrade(index){
 
@@ -537,11 +566,15 @@ Math.round((wins / totalTrades) * 100);
 
 }
 
-document.getElementById("equityValue").innerText =
-equity + "€";
+document.getElementById("equityValue").innerHTML =
+parseFloat(equity) >= 0
+? `<span class="green">${equity}€</span>`
+: `<span class="red">${equity}€</span>`;
 
-document.getElementById("profitValue").innerText =
-totalProfit + "€";
+document.getElementById("profitValue").innerHTML =
+totalProfit >= 0
+? `<span class="green">${totalProfit}€</span>`
+: `<span class="red">${totalProfit}€</span>`;
 
 document.getElementById("winrateValue").innerText =
 winrate + "%";
@@ -583,42 +616,7 @@ subtitle.innerText =
 content.innerHTML = `
 <h3>Dashboard Operativa</h3>
 
-<p>Qui puoi monitorare:</p>
-
-<ul>
-<li>Equity account</li>
-<li>Statistiche live</li>
-<li>Trade recenti</li>
-<li>Performance globale</li>
-</ul>
-`;
-
-}
-
-/* TRADES */
-
-if(page === "trades"){
-
-dashboard.style.display = "block";
-
-content.style.display = "block";
-
-title.innerText = "Trades";
-
-subtitle.innerText =
-"Gestione completa operazioni";
-
-content.innerHTML = `
-<h3>Gestione Trades</h3>
-
-<p>Da qui puoi:</p>
-
-<ul>
-<li>Aggiungere trade</li>
-<li>Eliminare trade</li>
-<li>Salvare operazioni</li>
-<li>Monitorare risultati</li>
-</ul>
+<p>Gestisci e monitora tutte le operazioni trading.</p>
 `;
 
 }
@@ -631,41 +629,104 @@ dashboard.style.display = "none";
 
 content.style.display = "block";
 
-let totalProfit = 0;
-
-let wins = 0;
-
-let losses = 0;
-
-trades.forEach(trade=>{
-
-const p = parseFloat(trade.profit);
-
-totalProfit += p;
-
-if(p > 0){
-wins++;
-}else{
-losses++;
-}
-
-});
-
 title.innerText = "Analytics";
 
 subtitle.innerText =
 "Statistiche avanzate";
 
+let daily = 0;
+let monthly = 0;
+let yearly = 0;
+
+const labels = [];
+const values = [];
+
+trades.forEach(trade=>{
+
+const p = parseFloat(trade.profit);
+
+daily += p;
+monthly += p;
+yearly += p;
+
+labels.push(trade.date);
+values.push(p);
+
+});
+
 content.innerHTML = `
+
 <h3>Analytics Account</h3>
 
-<ul>
-<li>Profitto Totale: ${totalProfit}€</li>
-<li>Trade Vincenti: ${wins}</li>
-<li>Trade Perdenti: ${losses}</li>
-<li>Trade Totali: ${trades.length}</li>
-</ul>
+<div class="analytics-grid">
+
+<div class="analytics-box">
+<div class="analytics-title">
+Giornaliero
+</div>
+<div class="analytics-value">
+${daily}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Mensile
+</div>
+<div class="analytics-value">
+${monthly}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Annuale
+</div>
+<div class="analytics-value">
+${yearly}€
+</div>
+</div>
+
+</div>
+
+<canvas id="analyticsChart"></canvas>
 `;
+
+setTimeout(()=>{
+
+const ctx =
+document.getElementById('analyticsChart');
+
+new Chart(ctx, {
+
+type: 'line',
+
+data: {
+
+labels: labels,
+
+datasets: [{
+
+label: 'Andamento Portfolio',
+
+data: values,
+
+borderWidth: 3,
+tension:0.3
+
+}]
+
+},
+
+options: {
+
+responsive:true
+
+}
+
+});
+
+},100);
 
 }
 
@@ -680,27 +741,80 @@ content.style.display = "block";
 title.innerText = "Calendario";
 
 subtitle.innerText =
-"Storico operazioni";
+"Storico mensile";
 
-let history = "";
+let monthlyData = {};
 
 trades.forEach(trade=>{
 
-history += `
-<li>
-${trade.asset} - ${trade.type} - ${trade.profit}€
-</li>
-`;
+const month =
+trade.date.substring(0,7);
+
+if(!monthlyData[month]){
+
+monthlyData[month] = {
+count:0,
+profit:0,
+wins:0
+};
+
+}
+
+monthlyData[month].count++;
+
+monthlyData[month].profit +=
+parseFloat(trade.profit);
+
+if(parseFloat(trade.profit) > 0){
+
+monthlyData[month].wins++;
+
+}
 
 });
 
-content.innerHTML = `
-<h3>Cronologia Trade</h3>
-
-<ul>
-${history}
-</ul>
+let calendarHTML = `
+<h3>Calendario Mensile</h3>
 `;
+
+for(let month in monthlyData){
+
+const data = monthlyData[month];
+
+const percentage =
+Math.round(
+(data.wins / data.count) * 100
+);
+
+calendarHTML += `
+
+<div class="analytics-box"
+style="margin-top:20px;">
+
+<h3>${month}</h3>
+
+<p>
+Trade Totali:
+${data.count}
+</p>
+
+<p>
+Win Rate:
+${percentage}%
+</p>
+
+<p>
+Profitto/Perdita:
+${data.profit}€
+</p>
+
+</div>
+
+`;
+
+}
+
+content.innerHTML = calendarHTML;
 
 }
 
