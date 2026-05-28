@@ -36,7 +36,8 @@ color:white;
 body.dark .card,
 body.dark .table-box,
 body.dark .page-content,
-body.dark .analytics-box{
+body.dark .analytics-box,
+body.dark .month-box{
 background:#1f2937;
 color:white;
 }
@@ -247,6 +248,32 @@ color:#6b7280;
 .analytics-value{
 font-size:28px;
 font-weight:bold;
+}
+
+/* CALENDAR */
+
+.month-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+margin-top:30px;
+}
+
+.month-box{
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.month-box h3{
+margin-bottom:15px;
+font-size:24px;
+}
+
+.month-box p{
+margin-bottom:10px;
+font-size:16px;
 }
 
 /* SETTINGS */
@@ -634,62 +661,26 @@ title.innerText = "Analytics";
 subtitle.innerText =
 "Statistiche avanzate";
 
-let daily = 0;
-let monthly = 0;
-let yearly = 0;
-
-const labels = [];
-const values = [];
+let labels = [];
+let values = [];
+let cumulative = 0;
 
 trades.forEach(trade=>{
 
-const p = parseFloat(trade.profit);
-
-daily += p;
-monthly += p;
-yearly += p;
+cumulative += parseFloat(trade.profit);
 
 labels.push(trade.date);
-values.push(p);
+
+values.push(cumulative);
 
 });
 
 content.innerHTML = `
 
-<h3>Analytics Account</h3>
-
-<div class="analytics-grid">
-
-<div class="analytics-box">
-<div class="analytics-title">
-Giornaliero
-</div>
-<div class="analytics-value">
-${daily}€
-</div>
-</div>
-
-<div class="analytics-box">
-<div class="analytics-title">
-Mensile
-</div>
-<div class="analytics-value">
-${monthly}€
-</div>
-</div>
-
-<div class="analytics-box">
-<div class="analytics-title">
-Annuale
-</div>
-<div class="analytics-value">
-${yearly}€
-</div>
-</div>
-
-</div>
+<h3>Analytics Portfolio</h3>
 
 <canvas id="analyticsChart"></canvas>
+
 `;
 
 setTimeout(()=>{
@@ -741,71 +732,115 @@ content.style.display = "block";
 title.innerText = "Calendario";
 
 subtitle.innerText =
-"Storico mensile";
+"Statistiche mensili";
 
-let monthlyData = {};
+const months = [
+"Gennaio",
+"Febbraio",
+"Marzo",
+"Aprile",
+"Maggio",
+"Giugno",
+"Luglio",
+"Agosto",
+"Settembre",
+"Ottobre",
+"Novembre",
+"Dicembre"
+];
+
+let monthData = {};
+
+months.forEach((month,index)=>{
+
+monthData[index+1] = {
+name: month,
+profit: 0,
+trades: 0,
+wins: 0
+};
+
+});
 
 trades.forEach(trade=>{
 
-const month =
-trade.date.substring(0,7);
+const date = new Date(trade.date);
 
-if(!monthlyData[month]){
+const month = date.getMonth() + 1;
 
-monthlyData[month] = {
-count:0,
-profit:0,
-wins:0
-};
-
-}
-
-monthlyData[month].count++;
-
-monthlyData[month].profit +=
+const profit =
 parseFloat(trade.profit);
 
-if(parseFloat(trade.profit) > 0){
+monthData[month].profit += profit;
 
-monthlyData[month].wins++;
+monthData[month].trades++;
+
+if(profit > 0){
+
+monthData[month].wins++;
 
 }
 
 });
 
-let calendarHTML = `
-<h3>Calendario Mensile</h3>
+let html = `
+<h3>Calendario Annuale</h3>
+
+<div class="month-grid">
 `;
 
-for(let month in monthlyData){
+for(let i=1;i<=12;i++){
 
-const data = monthlyData[month];
+const data = monthData[i];
 
-const percentage =
+let percentage = 0;
+
+if(data.trades > 0){
+
+percentage =
 Math.round(
-(data.wins / data.count) * 100
+(data.wins / data.trades) * 100
 );
 
-calendarHTML += `
+}
 
-<div class="analytics-box"
-style="margin-top:20px;">
+let monthEquity =
+parseFloat(equity) + data.profit;
 
-<h3>${month}</h3>
+html += `
+
+<div class="month-box">
+
+<h3>${data.name}</h3>
 
 <p>
 Trade Totali:
-${data.count}
-</p>
-
-<p>
-Win Rate:
-${percentage}%
+<strong>${data.trades}</strong>
 </p>
 
 <p>
 Profitto/Perdita:
+<strong class="${
+data.profit >=0 ? 'green' : 'red'
+}">
 ${data.profit}€
+</strong>
+</p>
+
+<p>
+Equity:
+<strong class="${
+monthEquity >=0 ? 'green' : 'red'
+}">
+${monthEquity}€
+</strong>
+</p>
+
+<p>
+Win Rate:
+<strong>
+${percentage}%
+</strong>
 </p>
 
 </div>
@@ -814,7 +849,9 @@ ${data.profit}€
 
 }
 
-content.innerHTML = calendarHTML;
+html += `</div>`;
+
+content.innerHTML = html;
 
 }
 
@@ -922,5 +959,4 @@ showPage("dashboard");
 
 </body>
 </html>
-
 
