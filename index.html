@@ -295,7 +295,7 @@ Benvenuto nel tuo Trading Journal
 <div class="card">
 <div class="card-title">Equity</div>
 <div class="card-value" id="equityValue">
-10,250€
+0€
 </div>
 </div>
 
@@ -378,10 +378,32 @@ Dashboard caricata.
 
 let trades = JSON.parse(localStorage.getItem("trades")) || [];
 
+let equity =
+localStorage.getItem("equity") || 0;
+
+/* FIRST EQUITY SETUP */
+
+if(equity == 0){
+
+let userEquity =
+prompt("Inserisci il tuo capitale iniziale");
+
+if(userEquity){
+
+equity = userEquity;
+
+localStorage.setItem("equity", equity);
+
+}
+
+}
+
 /* SAVE */
 
 function saveTrades(){
+
 localStorage.setItem("trades", JSON.stringify(trades));
+
 }
 
 /* LOAD TABLE */
@@ -409,6 +431,7 @@ const cell3 = row.insertCell(2);
 const cell4 = row.insertCell(3);
 
 cell1.innerHTML = trade.asset;
+
 cell2.innerHTML = trade.type;
 
 if(parseFloat(trade.profit)>=0){
@@ -424,7 +447,9 @@ cell3.innerHTML =
 }
 
 cell4.innerHTML =
-`<button onclick="deleteTrade(${index})">Elimina</button>`;
+`<button onclick="deleteTrade(${index})">
+Elimina
+</button>`;
 
 });
 
@@ -464,6 +489,7 @@ saveTrades();
 loadTrades();
 
 document.getElementById("assetInput").value = "";
+
 document.getElementById("profitInput").value = "";
 
 }
@@ -485,6 +511,7 @@ loadTrades();
 function updateStats(){
 
 let totalProfit = 0;
+
 let wins = 0;
 
 trades.forEach(trade=>{
@@ -504,9 +531,14 @@ const totalTrades = trades.length;
 let winrate = 0;
 
 if(totalTrades > 0){
+
 winrate =
 Math.round((wins / totalTrades) * 100);
+
 }
+
+document.getElementById("equityValue").innerText =
+equity + "€";
 
 document.getElementById("profitValue").innerText =
 totalProfit + "€";
@@ -540,6 +572,7 @@ document.getElementById("dashboardSection");
 if(page === "dashboard"){
 
 dashboard.style.display = "block";
+
 content.style.display = "block";
 
 title.innerText = "Dashboard";
@@ -567,6 +600,7 @@ content.innerHTML = `
 if(page === "trades"){
 
 dashboard.style.display = "block";
+
 content.style.display = "block";
 
 title.innerText = "Trades";
@@ -594,10 +628,13 @@ content.innerHTML = `
 if(page === "analytics"){
 
 dashboard.style.display = "none";
+
 content.style.display = "block";
 
 let totalProfit = 0;
+
 let wins = 0;
+
 let losses = 0;
 
 trades.forEach(trade=>{
@@ -637,6 +674,7 @@ content.innerHTML = `
 if(page === "calendar"){
 
 dashboard.style.display = "none";
+
 content.style.display = "block";
 
 title.innerText = "Calendario";
@@ -671,6 +709,7 @@ ${history}
 if(page === "settings"){
 
 dashboard.style.display = "none";
+
 content.style.display = "block";
 
 title.innerText = "Settings";
@@ -691,12 +730,40 @@ Dark Mode
 <br><br>
 
 <button class="setting-btn"
+onclick="changeEquity()">
+
+Modifica Equity
+
+</button>
+
+<br><br>
+
+<button class="setting-btn"
 onclick="resetTrades()">
 
 Reset Trade
 
 </button>
 `;
+
+}
+
+}
+
+/* CHANGE EQUITY */
+
+function changeEquity(){
+
+let newEquity =
+prompt("Inserisci la nuova equity");
+
+if(newEquity){
+
+equity = newEquity;
+
+localStorage.setItem("equity", equity);
+
+updateStats();
 
 }
 
