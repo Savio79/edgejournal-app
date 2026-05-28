@@ -81,7 +81,7 @@ color:#6b7280;
 margin-bottom:40px;
 }
 
-/* CARDS */
+/* DASHBOARD */
 
 .cards{
 display:grid;
@@ -141,7 +141,7 @@ th{
 color:#6b7280;
 }
 
-/* DYNAMIC CONTENT */
+/* PAGE CONTENT */
 
 .page-content{
 background:white;
@@ -152,17 +152,36 @@ font-size:18px;
 line-height:1.8;
 }
 
-.page-content h3{
-margin-bottom:15px;
+/* FORM */
+
+.trade-form{
+display:flex;
+flex-wrap:wrap;
+gap:15px;
+margin-bottom:25px;
+margin-top:20px;
 }
 
-.page-content ul{
-margin-top:15px;
-padding-left:20px;
+.trade-form input,
+.trade-form select{
+padding:12px;
+border-radius:10px;
+border:1px solid #d1d5db;
+font-size:16px;
 }
 
-.page-content li{
-margin-bottom:10px;
+.trade-form button{
+background:#111827;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:10px;
+cursor:pointer;
+font-size:16px;
+}
+
+.trade-form button:hover{
+background:#374151;
 }
 
 </style>
@@ -216,7 +235,7 @@ Dashboard
 Benvenuto nel tuo Trading Journal
 </div>
 
-<!-- DASHBOARD SECTION -->
+<!-- DASHBOARD -->
 
 <div id="dashboardSection">
 
@@ -248,7 +267,28 @@ Benvenuto nel tuo Trading Journal
 
 <h2>Ultimi Trade</h2>
 
-<table>
+<!-- FORM -->
+
+<div class="trade-form">
+
+<input type="text" id="assetInput" placeholder="Asset">
+
+<select id="typeInput">
+<option>LONG</option>
+<option>SHORT</option>
+</select>
+
+<input type="number" id="profitInput" placeholder="Profit/Loss">
+
+<button onclick="addTrade()">
+Aggiungi Trade
+</button>
+
+</div>
+
+<!-- TABLE -->
+
+<table id="tradeTable">
 
 <tr>
 <th>Asset</th>
@@ -280,7 +320,7 @@ Benvenuto nel tuo Trading Journal
 
 </div>
 
-<!-- DYNAMIC SECTION -->
+<!-- DYNAMIC CONTENT -->
 
 <div class="page-content" id="dynamicContent">
 
@@ -292,14 +332,14 @@ Questa è la dashboard principale del tuo EdgeJournal.
 
 <script>
 
+/* MENU */
+
 function showPage(page){
 
 const title = document.getElementById("pageTitle");
 const subtitle = document.getElementById("pageSubtitle");
 const content = document.getElementById("dynamicContent");
 const dashboard = document.getElementById("dashboardSection");
-
-/* DASHBOARD */
 
 if(page === "dashboard"){
 
@@ -325,8 +365,6 @@ content.innerHTML = `
 
 }
 
-/* TRADES */
-
 if(page === "trades"){
 
 dashboard.style.display = "none";
@@ -339,20 +377,10 @@ subtitle.innerText = "Gestione operazioni trading";
 content.innerHTML = `
 <h3>Lista Trades</h3>
 
-<p>In questa sezione potrai:</p>
-
-<ul>
-<li>Aggiungere nuovi trade</li>
-<li>Modificare operazioni</li>
-<li>Eliminare trade</li>
-<li>Caricare screenshot</li>
-<li>Scrivere note operative</li>
-</ul>
+<p>Qui potrai gestire tutte le operazioni trading.</p>
 `;
 
 }
-
-/* ANALYTICS */
 
 if(page === "analytics"){
 
@@ -364,22 +392,17 @@ title.innerText = "Analytics";
 subtitle.innerText = "Statistiche e performance";
 
 content.innerHTML = `
-<h3>Analytics Avanzati</h3>
-
-<p>Qui troverai:</p>
+<h3>Analytics</h3>
 
 <ul>
-<li>Win Rate dettagliato</li>
+<li>Win Rate</li>
 <li>Profit Factor</li>
 <li>Drawdown</li>
 <li>Performance mensile</li>
-<li>Analisi rischio/rendimento</li>
 </ul>
 `;
 
 }
-
-/* CALENDAR */
 
 if(page === "calendar"){
 
@@ -393,19 +416,10 @@ subtitle.innerText = "Storico e pianificazione";
 content.innerHTML = `
 <h3>Calendario Trading</h3>
 
-<p>Qui appariranno:</p>
-
-<ul>
-<li>Trade giornalieri</li>
-<li>Storico operazioni</li>
-<li>Eventi economici</li>
-<li>Sessioni operative</li>
-</ul>
+<p>Qui appariranno eventi e storico operazioni.</p>
 `;
 
 }
-
-/* SETTINGS */
 
 if(page === "settings"){
 
@@ -419,18 +433,50 @@ subtitle.innerText = "Configurazione piattaforma";
 content.innerHTML = `
 <h3>Impostazioni</h3>
 
-<p>Da qui potrai gestire:</p>
-
 <ul>
-<li>Profilo utente</li>
-<li>Tema grafico</li>
-<li>Broker collegati</li>
+<li>Tema</li>
 <li>Notifiche</li>
-<li>Preferenze account</li>
+<li>Broker</li>
+<li>Profilo utente</li>
 </ul>
 `;
 
 }
+
+}
+
+/* ADD TRADE */
+
+function addTrade(){
+
+const asset = document.getElementById("assetInput").value;
+const type = document.getElementById("typeInput").value;
+const profit = document.getElementById("profitInput").value;
+
+if(asset === "" || profit === ""){
+alert("Compila tutti i campi");
+return;
+}
+
+const table = document.getElementById("tradeTable");
+
+const row = table.insertRow(-1);
+
+const cell1 = row.insertCell(0);
+const cell2 = row.insertCell(1);
+const cell3 = row.insertCell(2);
+
+cell1.innerHTML = asset;
+cell2.innerHTML = type;
+
+if(profit >= 0){
+cell3.innerHTML = `<span class="green">+${profit}€</span>`;
+}else{
+cell3.innerHTML = `<span class="red">${profit}€</span>`;
+}
+
+document.getElementById("assetInput").value = "";
+document.getElementById("profitInput").value = "";
 
 }
 
