@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EdgeJournal Pro</title>
+<title>EdgeJournal PRO V2</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -37,17 +37,10 @@ body.dark .card,
 body.dark .table-box,
 body.dark .page-content,
 body.dark .analytics-box,
-body.dark .month-box{
+body.dark .month-box,
+body.dark canvas{
 background:#1f2937;
 color:white;
-}
-
-body.dark th{
-color:#d1d5db;
-}
-
-body.dark td{
-border-bottom:1px solid #374151;
 }
 
 body.dark input,
@@ -55,6 +48,10 @@ body.dark select{
 background:#111827;
 color:white;
 border:1px solid #374151;
+}
+
+body.dark td{
+border-bottom:1px solid #374151;
 }
 
 /* SIDEBAR */
@@ -115,10 +112,6 @@ color:#6b7280;
 margin-bottom:40px;
 }
 
-body.dark .subtitle{
-color:#d1d5db;
-}
-
 /* CARDS */
 
 .cards{
@@ -138,10 +131,6 @@ box-shadow:0 10px 25px rgba(0,0,0,0.08);
 .card-title{
 color:#6b7280;
 margin-bottom:10px;
-}
-
-body.dark .card-title{
-color:#d1d5db;
 }
 
 .card-value{
@@ -211,15 +200,13 @@ font-size:16px;
 background:#374151;
 }
 
-/* PAGE CONTENT */
+/* CONTENT */
 
 .page-content{
 background:white;
 padding:30px;
 border-radius:20px;
 box-shadow:0 10px 25px rgba(0,0,0,0.08);
-font-size:18px;
-line-height:1.8;
 }
 
 /* ANALYTICS */
@@ -228,13 +215,12 @@ line-height:1.8;
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 gap:20px;
-margin-top:30px;
 margin-bottom:30px;
 }
 
 .analytics-box{
 background:white;
-padding:20px;
+padding:25px;
 border-radius:20px;
 box-shadow:0 10px 25px rgba(0,0,0,0.08);
 }
@@ -268,12 +254,6 @@ box-shadow:0 10px 25px rgba(0,0,0,0.08);
 
 .month-box h3{
 margin-bottom:15px;
-font-size:24px;
-}
-
-.month-box p{
-margin-bottom:10px;
-font-size:16px;
 }
 
 /* SETTINGS */
@@ -289,12 +269,8 @@ background:#111827;
 color:white;
 }
 
-.setting-btn:hover{
-background:#374151;
-}
-
 canvas{
-margin-top:30px;
+margin-top:20px;
 background:white;
 padding:20px;
 border-radius:20px;
@@ -362,16 +338,16 @@ Benvenuto nel tuo Trading Journal
 </div>
 
 <div class="card">
-<div class="card-title">Win Rate</div>
-<div class="card-value" id="winrateValue">
+<div class="card-title">Profit %</div>
+<div class="card-value" id="profitPercentValue">
 0%
 </div>
 </div>
 
 <div class="card">
-<div class="card-title">Trade Totali</div>
-<div class="card-value" id="totalTradesValue">
-0
+<div class="card-title">Win Rate</div>
+<div class="card-value" id="winrateValue">
+0%
 </div>
 </div>
 
@@ -426,23 +402,39 @@ Dashboard caricata.
 
 <script>
 
-let trades = JSON.parse(localStorage.getItem("trades")) || [];
+/* STORAGE */
+
+let trades =
+JSON.parse(localStorage.getItem("trades")) || [];
 
 let equity =
 localStorage.getItem("equity") || 0;
 
-/* FIRST EQUITY */
+let initialCapital =
+localStorage.getItem("initialCapital") || 0;
 
-if(equity == 0){
+/* FIRST SETUP */
 
-let userEquity =
-prompt("Inserisci il tuo capitale iniziale");
+if(initialCapital == 0){
 
-if(userEquity){
+let capital =
+prompt("Inserisci il capitale iniziale");
 
-equity = userEquity;
+if(capital){
 
-localStorage.setItem("equity", equity);
+initialCapital = parseFloat(capital);
+
+equity = parseFloat(capital);
+
+localStorage.setItem(
+"initialCapital",
+initialCapital
+);
+
+localStorage.setItem(
+"equity",
+equity
+);
 
 }
 
@@ -452,15 +444,19 @@ localStorage.setItem("equity", equity);
 
 function saveTrades(){
 
-localStorage.setItem("trades", JSON.stringify(trades));
+localStorage.setItem(
+"trades",
+JSON.stringify(trades)
+);
 
 }
 
-/* LOAD TABLE */
+/* LOAD TRADES */
 
 function loadTrades(){
 
-const table = document.getElementById("tradeTable");
+const table =
+document.getElementById("tradeTable");
 
 table.innerHTML = `
 <tr>
@@ -476,29 +472,33 @@ trades.forEach((trade,index)=>{
 
 const row = table.insertRow(-1);
 
-const cell0 = row.insertCell(0);
-const cell1 = row.insertCell(1);
-const cell2 = row.insertCell(2);
-const cell3 = row.insertCell(3);
-const cell4 = row.insertCell(4);
+const c0 = row.insertCell(0);
+const c1 = row.insertCell(1);
+const c2 = row.insertCell(2);
+const c3 = row.insertCell(3);
+const c4 = row.insertCell(4);
 
-cell0.innerHTML = trade.date;
-cell1.innerHTML = trade.asset;
-cell2.innerHTML = trade.type;
+c0.innerHTML = trade.date;
+c1.innerHTML = trade.asset;
+c2.innerHTML = trade.type;
 
 if(parseFloat(trade.profit)>=0){
 
-cell3.innerHTML =
-`<span class="green">+${trade.profit}€</span>`;
+c3.innerHTML =
+`<span class="green">
++${trade.profit}€
+</span>`;
 
 }else{
 
-cell3.innerHTML =
-`<span class="red">${trade.profit}€</span>`;
+c3.innerHTML =
+`<span class="red">
+${trade.profit}€
+</span>`;
 
 }
 
-cell4.innerHTML =
+c4.innerHTML =
 `<button onclick="deleteTrade(${index})">
 Elimina
 </button>`;
@@ -523,9 +523,11 @@ const type =
 document.getElementById("typeInput").value;
 
 const profit =
-document.getElementById("profitInput").value;
+parseFloat(
+document.getElementById("profitInput").value
+);
 
-if(date === "" || asset === "" || profit === ""){
+if(date === "" || asset === ""){
 
 alert("Compila tutti i campi");
 
@@ -534,25 +536,42 @@ return;
 }
 
 trades.push({
-date: date,
-asset: asset,
-type: type,
-profit: profit
+date,
+asset,
+type,
+profit
 });
+
+equity =
+parseFloat(equity) + profit;
+
+localStorage.setItem(
+"equity",
+equity
+);
 
 saveTrades();
 
 loadTrades();
 
-document.getElementById("dateInput").value = "";
-document.getElementById("assetInput").value = "";
-document.getElementById("profitInput").value = "";
+document.getElementById("dateInput").value="";
+document.getElementById("assetInput").value="";
+document.getElementById("profitInput").value="";
 
 }
 
 /* DELETE */
 
 function deleteTrade(index){
+
+equity =
+parseFloat(equity) -
+parseFloat(trades[index].profit);
+
+localStorage.setItem(
+"equity",
+equity
+);
 
 trades.splice(index,1);
 
@@ -567,47 +586,73 @@ loadTrades();
 function updateStats(){
 
 let totalProfit = 0;
-
 let wins = 0;
 
 trades.forEach(trade=>{
 
-const p = parseFloat(trade.profit);
+totalProfit +=
+parseFloat(trade.profit);
 
-totalProfit += p;
-
-if(p > 0){
+if(parseFloat(trade.profit)>0){
 wins++;
 }
 
 });
 
-const totalTrades = trades.length;
+const totalTrades =
+trades.length;
 
 let winrate = 0;
 
 if(totalTrades > 0){
 
 winrate =
-Math.round((wins / totalTrades) * 100);
+Math.round(
+(wins / totalTrades) * 100
+);
 
 }
 
-document.getElementById("equityValue").innerHTML =
-parseFloat(equity) >= 0
+let profitPercent = 0;
+
+if(initialCapital > 0){
+
+profitPercent =
+(
+(totalProfit / initialCapital)
+*100
+).toFixed(2);
+
+}
+
+document.getElementById(
+"equityValue"
+).innerHTML =
+
+equity >=0
 ? `<span class="green">${equity}€</span>`
 : `<span class="red">${equity}€</span>`;
 
-document.getElementById("profitValue").innerHTML =
-totalProfit >= 0
+document.getElementById(
+"profitValue"
+).innerHTML =
+
+totalProfit >=0
 ? `<span class="green">${totalProfit}€</span>`
 : `<span class="red">${totalProfit}€</span>`;
 
-document.getElementById("winrateValue").innerText =
-winrate + "%";
+document.getElementById(
+"profitPercentValue"
+).innerHTML =
 
-document.getElementById("totalTradesValue").innerText =
-totalTrades;
+profitPercent >=0
+? `<span class="green">${profitPercent}%</span>`
+: `<span class="red">${profitPercent}%</span>`;
+
+document.getElementById(
+"winrateValue"
+).innerText =
+winrate + "%";
 
 }
 
@@ -643,7 +688,10 @@ subtitle.innerText =
 content.innerHTML = `
 <h3>Dashboard Operativa</h3>
 
-<p>Gestisci e monitora tutte le operazioni trading.</p>
+<p>
+Monitora equity,
+performance e crescita account.
+</p>
 `;
 
 }
@@ -659,15 +707,22 @@ content.style.display = "block";
 title.innerText = "Analytics";
 
 subtitle.innerText =
-"Statistiche avanzate";
+"Performance stile MyFXBook";
 
-let labels = [];
-let values = [];
-let cumulative = 0;
+let cumulative = initialCapital;
+
+const labels = [];
+const values = [];
+
+let totalProfit = 0;
 
 trades.forEach(trade=>{
 
-cumulative += parseFloat(trade.profit);
+cumulative +=
+parseFloat(trade.profit);
+
+totalProfit +=
+parseFloat(trade.profit);
 
 labels.push(trade.date);
 
@@ -675,9 +730,59 @@ values.push(cumulative);
 
 });
 
+let percentage = 0;
+
+if(initialCapital > 0){
+
+percentage =
+(
+(totalProfit / initialCapital)
+*100
+).toFixed(2);
+
+}
+
 content.innerHTML = `
 
-<h3>Analytics Portfolio</h3>
+<div class="analytics-grid">
+
+<div class="analytics-box">
+<div class="analytics-title">
+Capitale Iniziale
+</div>
+<div class="analytics-value">
+${initialCapital}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Equity Attuale
+</div>
+<div class="analytics-value">
+${equity}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Profitto Totale
+</div>
+<div class="analytics-value">
+${totalProfit}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Profit %
+</div>
+<div class="analytics-value">
+${percentage}%
+</div>
+</div>
+
+</div>
 
 <canvas id="analyticsChart"></canvas>
 
@@ -686,7 +791,9 @@ content.innerHTML = `
 setTimeout(()=>{
 
 const ctx =
-document.getElementById('analyticsChart');
+document.getElementById(
+'analyticsChart'
+);
 
 new Chart(ctx, {
 
@@ -698,12 +805,17 @@ labels: labels,
 
 datasets: [{
 
-label: 'Andamento Portfolio',
+label: 'Equity Curve',
 
 data: values,
 
 borderWidth: 3,
-tension:0.3
+
+fill:true,
+
+tension:0.4,
+
+pointRadius:2
 
 }]
 
@@ -711,7 +823,23 @@ tension:0.3
 
 options: {
 
-responsive:true
+responsive:true,
+
+plugins:{
+
+legend:{
+display:true
+}
+
+},
+
+scales:{
+
+y:{
+beginAtZero:false
+}
+
+}
 
 }
 
@@ -755,27 +883,30 @@ months.forEach((month,index)=>{
 
 monthData[index+1] = {
 name: month,
-profit: 0,
-trades: 0,
-wins: 0
+profit:0,
+trades:0,
+wins:0
 };
 
 });
 
 trades.forEach(trade=>{
 
-const date = new Date(trade.date);
+const date =
+new Date(trade.date);
 
-const month = date.getMonth() + 1;
+const month =
+date.getMonth()+1;
 
 const profit =
 parseFloat(trade.profit);
 
-monthData[month].profit += profit;
+monthData[month].profit +=
+profit;
 
 monthData[month].trades++;
 
-if(profit > 0){
+if(profit>0){
 
 monthData[month].wins++;
 
@@ -799,13 +930,15 @@ if(data.trades > 0){
 
 percentage =
 Math.round(
-(data.wins / data.trades) * 100
+(data.wins/data.trades)*100
 );
 
 }
 
 let monthEquity =
-parseFloat(equity) + data.profit;
+parseFloat(initialCapital)
++
+data.profit;
 
 html += `
 
@@ -821,7 +954,9 @@ Trade Totali:
 <p>
 Profitto/Perdita:
 <strong class="${
-data.profit >=0 ? 'green' : 'red'
+data.profit >=0
+? 'green'
+: 'red'
 }">
 ${data.profit}€
 </strong>
@@ -830,7 +965,9 @@ ${data.profit}€
 <p>
 Equity:
 <strong class="${
-monthEquity >=0 ? 'green' : 'red'
+monthEquity >=0
+? 'green'
+: 'red'
 }">
 ${monthEquity}€
 </strong>
@@ -869,6 +1006,7 @@ subtitle.innerText =
 "Configurazione piattaforma";
 
 content.innerHTML = `
+
 <h3>Impostazioni</h3>
 
 <button class="setting-btn"
@@ -892,9 +1030,10 @@ Modifica Equity
 <button class="setting-btn"
 onclick="resetTrades()">
 
-Reset Trade
+Reset Completo
 
 </button>
+
 `;
 
 }
@@ -906,13 +1045,17 @@ Reset Trade
 function changeEquity(){
 
 let newEquity =
-prompt("Inserisci la nuova equity");
+prompt("Inserisci nuova equity");
 
 if(newEquity){
 
-equity = newEquity;
+equity =
+parseFloat(newEquity);
 
-localStorage.setItem("equity", equity);
+localStorage.setItem(
+"equity",
+equity
+);
 
 updateStats();
 
@@ -933,13 +1076,22 @@ document.body.classList.toggle("dark");
 function resetTrades(){
 
 const confirmReset =
-confirm("Vuoi eliminare tutti i trade?");
+confirm(
+"Vuoi eliminare tutto?"
+);
 
 if(confirmReset){
 
 trades = [];
 
 saveTrades();
+
+equity = initialCapital;
+
+localStorage.setItem(
+"equity",
+equity
+);
 
 loadTrades();
 
@@ -959,4 +1111,3 @@ showPage("dashboard");
 
 </body>
 </html>
-
