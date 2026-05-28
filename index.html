@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EdgeJournal</title>
+<title>EdgeJournal Pro</title>
 
 <style>
 
@@ -21,6 +21,36 @@ display:flex;
 background:#f3f4f6;
 height:100vh;
 overflow:hidden;
+transition:0.3s;
+}
+
+/* DARK MODE */
+
+body.dark{
+background:#111827;
+color:white;
+}
+
+body.dark .card,
+body.dark .table-box,
+body.dark .page-content{
+background:#1f2937;
+color:white;
+}
+
+body.dark th{
+color:#d1d5db;
+}
+
+body.dark td{
+border-bottom:1px solid #374151;
+}
+
+body.dark input,
+body.dark select{
+background:#111827;
+color:white;
+border:1px solid #374151;
 }
 
 /* SIDEBAR */
@@ -35,7 +65,7 @@ flex-direction:column;
 }
 
 .logo{
-font-size:28px;
+font-size:30px;
 font-weight:bold;
 margin-bottom:40px;
 }
@@ -81,7 +111,11 @@ color:#6b7280;
 margin-bottom:40px;
 }
 
-/* DASHBOARD */
+body.dark .subtitle{
+color:#d1d5db;
+}
+
+/* CARDS */
 
 .cards{
 display:grid;
@@ -100,6 +134,10 @@ box-shadow:0 10px 25px rgba(0,0,0,0.08);
 .card-title{
 color:#6b7280;
 margin-bottom:10px;
+}
+
+body.dark .card-title{
+color:#d1d5db;
 }
 
 .card-value{
@@ -137,21 +175,6 @@ text-align:left;
 border-bottom:1px solid #e5e7eb;
 }
 
-th{
-color:#6b7280;
-}
-
-/* PAGE CONTENT */
-
-.page-content{
-background:white;
-padding:30px;
-border-radius:20px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
-font-size:18px;
-line-height:1.8;
-}
-
 /* FORM */
 
 .trade-form{
@@ -181,6 +204,34 @@ font-size:16px;
 }
 
 .trade-form button:hover{
+background:#374151;
+}
+
+/* PAGE CONTENT */
+
+.page-content{
+background:white;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+font-size:18px;
+line-height:1.8;
+}
+
+/* SETTINGS */
+
+.setting-btn{
+margin-top:20px;
+padding:14px 20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-size:16px;
+background:#111827;
+color:white;
+}
+
+.setting-btn:hover{
 background:#374151;
 }
 
@@ -243,22 +294,30 @@ Benvenuto nel tuo Trading Journal
 
 <div class="card">
 <div class="card-title">Equity</div>
-<div class="card-value">10,250€</div>
+<div class="card-value" id="equityValue">
+10,250€
+</div>
 </div>
 
 <div class="card">
 <div class="card-title">Profitto Totale</div>
-<div class="card-value green">+12.4%</div>
+<div class="card-value green" id="profitValue">
+0€
+</div>
 </div>
 
 <div class="card">
 <div class="card-title">Win Rate</div>
-<div class="card-value">68%</div>
+<div class="card-value" id="winrateValue">
+0%
+</div>
 </div>
 
 <div class="card">
-<div class="card-title">Profitto Medio</div>
-<div class="card-value green">+1.2%</div>
+<div class="card-title">Trade Totali</div>
+<div class="card-value" id="totalTradesValue">
+0
+</div>
 </div>
 
 </div>
@@ -294,24 +353,7 @@ Aggiungi Trade
 <th>Asset</th>
 <th>Tipo</th>
 <th>Profit/Loss</th>
-</tr>
-
-<tr>
-<td>XAU/USD</td>
-<td>LONG</td>
-<td class="green">+250€</td>
-</tr>
-
-<tr>
-<td>US30</td>
-<td>SHORT</td>
-<td class="red">-80€</td>
-</tr>
-
-<tr>
-<td>BTC/USD</td>
-<td>LONG</td>
-<td class="green">+420€</td>
+<th>Azione</th>
 </tr>
 
 </table>
@@ -324,7 +366,7 @@ Aggiungi Trade
 
 <div class="page-content" id="dynamicContent">
 
-Questa è la dashboard principale del tuo EdgeJournal.
+Dashboard caricata.
 
 </div>
 
@@ -332,14 +374,168 @@ Questa è la dashboard principale del tuo EdgeJournal.
 
 <script>
 
+/* STORAGE */
+
+let trades = JSON.parse(localStorage.getItem("trades")) || [];
+
+/* SAVE */
+
+function saveTrades(){
+localStorage.setItem("trades", JSON.stringify(trades));
+}
+
+/* LOAD TABLE */
+
+function loadTrades(){
+
+const table = document.getElementById("tradeTable");
+
+table.innerHTML = `
+<tr>
+<th>Asset</th>
+<th>Tipo</th>
+<th>Profit/Loss</th>
+<th>Azione</th>
+</tr>
+`;
+
+trades.forEach((trade,index)=>{
+
+const row = table.insertRow(-1);
+
+const cell1 = row.insertCell(0);
+const cell2 = row.insertCell(1);
+const cell3 = row.insertCell(2);
+const cell4 = row.insertCell(3);
+
+cell1.innerHTML = trade.asset;
+cell2.innerHTML = trade.type;
+
+if(parseFloat(trade.profit)>=0){
+
+cell3.innerHTML =
+`<span class="green">+${trade.profit}€</span>`;
+
+}else{
+
+cell3.innerHTML =
+`<span class="red">${trade.profit}€</span>`;
+
+}
+
+cell4.innerHTML =
+`<button onclick="deleteTrade(${index})">Elimina</button>`;
+
+});
+
+updateStats();
+
+}
+
+/* ADD TRADE */
+
+function addTrade(){
+
+const asset =
+document.getElementById("assetInput").value;
+
+const type =
+document.getElementById("typeInput").value;
+
+const profit =
+document.getElementById("profitInput").value;
+
+if(asset === "" || profit === ""){
+
+alert("Compila tutti i campi");
+
+return;
+
+}
+
+trades.push({
+asset: asset,
+type: type,
+profit: profit
+});
+
+saveTrades();
+
+loadTrades();
+
+document.getElementById("assetInput").value = "";
+document.getElementById("profitInput").value = "";
+
+}
+
+/* DELETE TRADE */
+
+function deleteTrade(index){
+
+trades.splice(index,1);
+
+saveTrades();
+
+loadTrades();
+
+}
+
+/* UPDATE STATS */
+
+function updateStats(){
+
+let totalProfit = 0;
+let wins = 0;
+
+trades.forEach(trade=>{
+
+const p = parseFloat(trade.profit);
+
+totalProfit += p;
+
+if(p > 0){
+wins++;
+}
+
+});
+
+const totalTrades = trades.length;
+
+let winrate = 0;
+
+if(totalTrades > 0){
+winrate =
+Math.round((wins / totalTrades) * 100);
+}
+
+document.getElementById("profitValue").innerText =
+totalProfit + "€";
+
+document.getElementById("winrateValue").innerText =
+winrate + "%";
+
+document.getElementById("totalTradesValue").innerText =
+totalTrades;
+
+}
+
 /* MENU */
 
 function showPage(page){
 
-const title = document.getElementById("pageTitle");
-const subtitle = document.getElementById("pageSubtitle");
-const content = document.getElementById("dynamicContent");
-const dashboard = document.getElementById("dashboardSection");
+const title =
+document.getElementById("pageTitle");
+
+const subtitle =
+document.getElementById("pageSubtitle");
+
+const content =
+document.getElementById("dynamicContent");
+
+const dashboard =
+document.getElementById("dashboardSection");
+
+/* DASHBOARD */
 
 if(page === "dashboard"){
 
@@ -348,61 +544,95 @@ content.style.display = "block";
 
 title.innerText = "Dashboard";
 
-subtitle.innerText = "Benvenuto nel tuo Trading Journal";
+subtitle.innerText =
+"Panoramica generale account";
 
 content.innerHTML = `
-<h3>Panoramica Account</h3>
+<h3>Dashboard Operativa</h3>
 
-<p>Qui puoi monitorare rapidamente:</p>
+<p>Qui puoi monitorare:</p>
 
 <ul>
-<li>Equity totale</li>
-<li>Profitto account</li>
-<li>Win Rate</li>
-<li>Ultimi trade eseguiti</li>
+<li>Equity account</li>
+<li>Statistiche live</li>
+<li>Trade recenti</li>
+<li>Performance globale</li>
 </ul>
 `;
 
 }
 
+/* TRADES */
+
 if(page === "trades"){
 
-dashboard.style.display = "none";
+dashboard.style.display = "block";
 content.style.display = "block";
 
 title.innerText = "Trades";
 
-subtitle.innerText = "Gestione operazioni trading";
+subtitle.innerText =
+"Gestione completa operazioni";
 
 content.innerHTML = `
-<h3>Lista Trades</h3>
+<h3>Gestione Trades</h3>
 
-<p>Qui potrai gestire tutte le operazioni trading.</p>
+<p>Da qui puoi:</p>
+
+<ul>
+<li>Aggiungere trade</li>
+<li>Eliminare trade</li>
+<li>Salvare operazioni</li>
+<li>Monitorare risultati</li>
+</ul>
 `;
 
 }
+
+/* ANALYTICS */
 
 if(page === "analytics"){
 
 dashboard.style.display = "none";
 content.style.display = "block";
 
+let totalProfit = 0;
+let wins = 0;
+let losses = 0;
+
+trades.forEach(trade=>{
+
+const p = parseFloat(trade.profit);
+
+totalProfit += p;
+
+if(p > 0){
+wins++;
+}else{
+losses++;
+}
+
+});
+
 title.innerText = "Analytics";
 
-subtitle.innerText = "Statistiche e performance";
+subtitle.innerText =
+"Statistiche avanzate";
 
 content.innerHTML = `
-<h3>Analytics</h3>
+<h3>Analytics Account</h3>
 
 <ul>
-<li>Win Rate</li>
-<li>Profit Factor</li>
-<li>Drawdown</li>
-<li>Performance mensile</li>
+<li>Profitto Totale: ${totalProfit}€</li>
+<li>Trade Vincenti: ${wins}</li>
+<li>Trade Perdenti: ${losses}</li>
+<li>Trade Totali: ${trades.length}</li>
 </ul>
 `;
 
 }
+
+/* CALENDAR */
 
 if(page === "calendar"){
 
@@ -411,15 +641,32 @@ content.style.display = "block";
 
 title.innerText = "Calendario";
 
-subtitle.innerText = "Storico e pianificazione";
+subtitle.innerText =
+"Storico operazioni";
+
+let history = "";
+
+trades.forEach(trade=>{
+
+history += `
+<li>
+${trade.asset} - ${trade.type} - ${trade.profit}€
+</li>
+`;
+
+});
 
 content.innerHTML = `
-<h3>Calendario Trading</h3>
+<h3>Cronologia Trade</h3>
 
-<p>Qui appariranno eventi e storico operazioni.</p>
+<ul>
+${history}
+</ul>
 `;
 
 }
+
+/* SETTINGS */
 
 if(page === "settings"){
 
@@ -428,57 +675,67 @@ content.style.display = "block";
 
 title.innerText = "Settings";
 
-subtitle.innerText = "Configurazione piattaforma";
+subtitle.innerText =
+"Configurazione piattaforma";
 
 content.innerHTML = `
 <h3>Impostazioni</h3>
 
-<ul>
-<li>Tema</li>
-<li>Notifiche</li>
-<li>Broker</li>
-<li>Profilo utente</li>
-</ul>
+<button class="setting-btn"
+onclick="toggleDarkMode()">
+
+Dark Mode
+
+</button>
+
+<br><br>
+
+<button class="setting-btn"
+onclick="resetTrades()">
+
+Reset Trade
+
+</button>
 `;
 
 }
 
 }
 
-/* ADD TRADE */
+/* DARK MODE */
 
-function addTrade(){
+function toggleDarkMode(){
 
-const asset = document.getElementById("assetInput").value;
-const type = document.getElementById("typeInput").value;
-const profit = document.getElementById("profitInput").value;
-
-if(asset === "" || profit === ""){
-alert("Compila tutti i campi");
-return;
-}
-
-const table = document.getElementById("tradeTable");
-
-const row = table.insertRow(-1);
-
-const cell1 = row.insertCell(0);
-const cell2 = row.insertCell(1);
-const cell3 = row.insertCell(2);
-
-cell1.innerHTML = asset;
-cell2.innerHTML = type;
-
-if(profit >= 0){
-cell3.innerHTML = `<span class="green">+${profit}€</span>`;
-}else{
-cell3.innerHTML = `<span class="red">${profit}€</span>`;
-}
-
-document.getElementById("assetInput").value = "";
-document.getElementById("profitInput").value = "";
+document.body.classList.toggle("dark");
 
 }
+
+/* RESET */
+
+function resetTrades(){
+
+const confirmReset =
+confirm("Vuoi eliminare tutti i trade?");
+
+if(confirmReset){
+
+trades = [];
+
+saveTrades();
+
+loadTrades();
+
+showPage("dashboard");
+
+}
+
+}
+
+/* START */
+
+loadTrades();
+
+showPage("dashboard");
 
 </script>
 
