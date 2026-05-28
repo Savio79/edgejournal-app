@@ -8,7 +8,7 @@
 <title>EdgeJournal PRO CLOUD</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
 
@@ -452,6 +452,8 @@ equity
 
 async function saveTradeToSupabase(trade){
 
+try{
+
 const { error } =
 await supabase
 .from("trades")
@@ -461,11 +463,11 @@ if(error){
 
 console.log(error);
 
-alert("Errore salvataggio trade");
+}
 
-}else{
+}catch(err){
 
-console.log("Trade salvato");
+console.log(err);
 
 }
 
@@ -663,6 +665,8 @@ loadTrades();
 
 async function loadTradesFromSupabase(){
 
+try{
+
 const { data, error } =
 await supabase
 .from("trades")
@@ -679,6 +683,12 @@ return;
 trades = data || [];
 
 loadTrades();
+
+}catch(err){
+
+console.log(err);
+
+}
 
 }
 
