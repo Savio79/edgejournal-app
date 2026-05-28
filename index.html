@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EdgeJournal PRO V2</title>
+<title>EdgeJournal PRO V3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -276,10 +276,16 @@ padding:20px;
 border-radius:20px;
 }
 
+.hidden{
+display:none;
+}
+
 </style>
 </head>
 
 <body>
+
+<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -291,6 +297,10 @@ EdgeJournal
 
 <button onclick="showPage('dashboard')">
 Dashboard
+</button>
+
+<button onclick="showPage('trades')">
+Trades
 </button>
 
 <button onclick="showPage('analytics')">
@@ -309,6 +319,8 @@ Settings
 
 </div>
 
+<!-- MAIN -->
+
 <div class="main">
 
 <div class="title" id="pageTitle">
@@ -316,10 +328,12 @@ Dashboard
 </div>
 
 <div class="subtitle" id="pageSubtitle">
-Benvenuto nel tuo Trading Journal
+Panoramica generale account
 </div>
 
-<div id="dashboardSection">
+<!-- DASHBOARD -->
+
+<div id="dashboardPage">
 
 <div class="cards">
 
@@ -353,9 +367,26 @@ Benvenuto nel tuo Trading Journal
 
 </div>
 
+<div class="page-content">
+
+<h3>Dashboard Operativa</h3>
+
+<p>
+Monitora la crescita del tuo account
+e le performance operative.
+</p>
+
+</div>
+
+</div>
+
+<!-- TRADES -->
+
+<div id="tradesPage" class="hidden">
+
 <div class="table-box">
 
-<h2>Ultimi Trade</h2>
+<h2>Gestione Trades</h2>
 
 <div class="trade-form">
 
@@ -392,11 +423,9 @@ Aggiungi Trade
 
 </div>
 
-<div class="page-content" id="dynamicContent">
+<!-- DYNAMIC CONTENT -->
 
-Dashboard caricata.
-
-</div>
+<div id="dynamicContent"></div>
 
 </div>
 
@@ -407,15 +436,19 @@ Dashboard caricata.
 let trades =
 JSON.parse(localStorage.getItem("trades")) || [];
 
-let equity =
-localStorage.getItem("equity") || 0;
-
 let initialCapital =
-localStorage.getItem("initialCapital") || 0;
+parseFloat(
+localStorage.getItem("initialCapital")
+) || 0;
+
+let equity =
+parseFloat(
+localStorage.getItem("equity")
+) || 0;
 
 /* FIRST SETUP */
 
-if(initialCapital == 0){
+if(initialCapital === 0){
 
 let capital =
 prompt("Inserisci il capitale iniziale");
@@ -424,7 +457,7 @@ if(capital){
 
 initialCapital = parseFloat(capital);
 
-equity = parseFloat(capital);
+equity = initialCapital;
 
 localStorage.setItem(
 "initialCapital",
@@ -449,139 +482,14 @@ localStorage.setItem(
 JSON.stringify(trades)
 );
 
-}
-
-/* LOAD TRADES */
-
-function loadTrades(){
-
-const table =
-document.getElementById("tradeTable");
-
-table.innerHTML = `
-<tr>
-<th>Data</th>
-<th>Asset</th>
-<th>Tipo</th>
-<th>Profit/Loss</th>
-<th>Azione</th>
-</tr>
-`;
-
-trades.forEach((trade,index)=>{
-
-const row = table.insertRow(-1);
-
-const c0 = row.insertCell(0);
-const c1 = row.insertCell(1);
-const c2 = row.insertCell(2);
-const c3 = row.insertCell(3);
-const c4 = row.insertCell(4);
-
-c0.innerHTML = trade.date;
-c1.innerHTML = trade.asset;
-c2.innerHTML = trade.type;
-
-if(parseFloat(trade.profit)>=0){
-
-c3.innerHTML =
-`<span class="green">
-+${trade.profit}€
-</span>`;
-
-}else{
-
-c3.innerHTML =
-`<span class="red">
-${trade.profit}€
-</span>`;
-
-}
-
-c4.innerHTML =
-`<button onclick="deleteTrade(${index})">
-Elimina
-</button>`;
-
-});
-
-updateStats();
-
-}
-
-/* ADD TRADE */
-
-function addTrade(){
-
-const date =
-document.getElementById("dateInput").value;
-
-const asset =
-document.getElementById("assetInput").value;
-
-const type =
-document.getElementById("typeInput").value;
-
-const profit =
-parseFloat(
-document.getElementById("profitInput").value
-);
-
-if(date === "" || asset === ""){
-
-alert("Compila tutti i campi");
-
-return;
-
-}
-
-trades.push({
-date,
-asset,
-type,
-profit
-});
-
-equity =
-parseFloat(equity) + profit;
-
 localStorage.setItem(
 "equity",
 equity
 );
 
-saveTrades();
-
-loadTrades();
-
-document.getElementById("dateInput").value="";
-document.getElementById("assetInput").value="";
-document.getElementById("profitInput").value="";
-
 }
 
-/* DELETE */
-
-function deleteTrade(index){
-
-equity =
-parseFloat(equity) -
-parseFloat(trades[index].profit);
-
-localStorage.setItem(
-"equity",
-equity
-);
-
-trades.splice(index,1);
-
-saveTrades();
-
-loadTrades();
-
-}
-
-/* UPDATE STATS */
+/* UPDATE DASHBOARD */
 
 function updateStats(){
 
@@ -590,10 +498,12 @@ let wins = 0;
 
 trades.forEach(trade=>{
 
-totalProfit +=
+const p =
 parseFloat(trade.profit);
 
-if(parseFloat(trade.profit)>0){
+totalProfit += p;
+
+if(p > 0){
 wins++;
 }
 
@@ -656,43 +566,171 @@ winrate + "%";
 
 }
 
-/* MENU */
+/* LOAD TRADES */
+
+function loadTrades(){
+
+const table =
+document.getElementById("tradeTable");
+
+table.innerHTML = `
+<tr>
+<th>Data</th>
+<th>Asset</th>
+<th>Tipo</th>
+<th>Profit/Loss</th>
+<th>Azione</th>
+</tr>
+`;
+
+trades.forEach((trade,index)=>{
+
+const row = table.insertRow(-1);
+
+row.insertCell(0).innerHTML =
+trade.date;
+
+row.insertCell(1).innerHTML =
+trade.asset;
+
+row.insertCell(2).innerHTML =
+trade.type;
+
+row.insertCell(3).innerHTML =
+
+trade.profit >=0
+? `<span class="green">
++${trade.profit}€
+</span>`
+: `<span class="red">
+${trade.profit}€
+</span>`;
+
+row.insertCell(4).innerHTML =
+`<button onclick="deleteTrade(${index})">
+Elimina
+</button>`;
+
+});
+
+updateStats();
+
+}
+
+/* ADD TRADE */
+
+function addTrade(){
+
+const date =
+document.getElementById("dateInput").value;
+
+const asset =
+document.getElementById("assetInput").value;
+
+const type =
+document.getElementById("typeInput").value;
+
+const profit =
+parseFloat(
+document.getElementById("profitInput").value
+);
+
+if(date === "" || asset === ""){
+
+alert("Compila tutti i campi");
+
+return;
+
+}
+
+trades.push({
+date,
+asset,
+type,
+profit
+});
+
+equity += profit;
+
+saveTrades();
+
+loadTrades();
+
+document.getElementById("dateInput").value="";
+document.getElementById("assetInput").value="";
+document.getElementById("profitInput").value="";
+
+}
+
+/* DELETE */
+
+function deleteTrade(index){
+
+equity -=
+parseFloat(trades[index].profit);
+
+trades.splice(index,1);
+
+saveTrades();
+
+loadTrades();
+
+}
+
+/* SHOW PAGE */
 
 function showPage(page){
 
-const title =
-document.getElementById("pageTitle");
+document.getElementById(
+"dashboardPage"
+).classList.add("hidden");
 
-const subtitle =
-document.getElementById("pageSubtitle");
+document.getElementById(
+"tradesPage"
+).classList.add("hidden");
 
 const content =
-document.getElementById("dynamicContent");
+document.getElementById(
+"dynamicContent"
+);
 
-const dashboard =
-document.getElementById("dashboardSection");
+content.innerHTML = "";
 
 /* DASHBOARD */
 
 if(page === "dashboard"){
 
-dashboard.style.display = "block";
+document.getElementById(
+"dashboardPage"
+).classList.remove("hidden");
 
-content.style.display = "block";
+document.getElementById(
+"pageTitle"
+).innerText = "Dashboard";
 
-title.innerText = "Dashboard";
-
-subtitle.innerText =
+document.getElementById(
+"pageSubtitle"
+).innerText =
 "Panoramica generale account";
 
-content.innerHTML = `
-<h3>Dashboard Operativa</h3>
+}
 
-<p>
-Monitora equity,
-performance e crescita account.
-</p>
-`;
+/* TRADES */
+
+if(page === "trades"){
+
+document.getElementById(
+"tradesPage"
+).classList.remove("hidden");
+
+document.getElementById(
+"pageTitle"
+).innerText = "Trades";
+
+document.getElementById(
+"pageSubtitle"
+).innerText =
+"Gestione operazioni";
 
 }
 
@@ -700,21 +738,22 @@ performance e crescita account.
 
 if(page === "analytics"){
 
-dashboard.style.display = "none";
+document.getElementById(
+"pageTitle"
+).innerText = "Analytics";
 
-content.style.display = "block";
-
-title.innerText = "Analytics";
-
-subtitle.innerText =
+document.getElementById(
+"pageSubtitle"
+).innerText =
 "Performance stile MyFXBook";
 
-let cumulative = initialCapital;
+let cumulative =
+initialCapital;
+
+let totalProfit = 0;
 
 const labels = [];
 const values = [];
-
-let totalProfit = 0;
 
 trades.forEach(trade=>{
 
@@ -785,31 +824,30 @@ ${percentage}%
 </div>
 
 <canvas id="analyticsChart"></canvas>
-
 `;
 
 setTimeout(()=>{
 
 const ctx =
 document.getElementById(
-'analyticsChart'
+"analyticsChart"
 );
 
-new Chart(ctx, {
+new Chart(ctx,{
 
-type: 'line',
+type:"line",
 
-data: {
+data:{
 
-labels: labels,
+labels:labels,
 
-datasets: [{
+datasets:[{
 
-label: 'Equity Curve',
+label:"Equity Curve",
 
-data: values,
+data:values,
 
-borderWidth: 3,
+borderWidth:3,
 
 fill:true,
 
@@ -821,26 +859,8 @@ pointRadius:2
 
 },
 
-options: {
-
-responsive:true,
-
-plugins:{
-
-legend:{
-display:true
-}
-
-},
-
-scales:{
-
-y:{
-beginAtZero:false
-}
-
-}
-
+options:{
+responsive:true
 }
 
 });
@@ -853,36 +873,28 @@ beginAtZero:false
 
 if(page === "calendar"){
 
-dashboard.style.display = "none";
+document.getElementById(
+"pageTitle"
+).innerText = "Calendario";
 
-content.style.display = "block";
-
-title.innerText = "Calendario";
-
-subtitle.innerText =
+document.getElementById(
+"pageSubtitle"
+).innerText =
 "Statistiche mensili";
 
 const months = [
-"Gennaio",
-"Febbraio",
-"Marzo",
-"Aprile",
-"Maggio",
-"Giugno",
-"Luglio",
-"Agosto",
-"Settembre",
-"Ottobre",
-"Novembre",
-"Dicembre"
+"Gennaio","Febbraio","Marzo",
+"Aprile","Maggio","Giugno",
+"Luglio","Agosto","Settembre",
+"Ottobre","Novembre","Dicembre"
 ];
 
 let monthData = {};
 
-months.forEach((month,index)=>{
+months.forEach((m,index)=>{
 
-monthData[index+1] = {
-name: month,
+monthData[index+1]={
+name:m,
 profit:0,
 trades:0,
 wins:0
@@ -915,8 +927,6 @@ monthData[month].wins++;
 });
 
 let html = `
-<h3>Calendario Annuale</h3>
-
 <div class="month-grid">
 `;
 
@@ -926,7 +936,7 @@ const data = monthData[i];
 
 let percentage = 0;
 
-if(data.trades > 0){
+if(data.trades>0){
 
 percentage =
 Math.round(
@@ -936,8 +946,7 @@ Math.round(
 }
 
 let monthEquity =
-parseFloat(initialCapital)
-+
+initialCapital +
 data.profit;
 
 html += `
@@ -996,43 +1005,41 @@ content.innerHTML = html;
 
 if(page === "settings"){
 
-dashboard.style.display = "none";
+document.getElementById(
+"pageTitle"
+).innerText = "Settings";
 
-content.style.display = "block";
-
-title.innerText = "Settings";
-
-subtitle.innerText =
+document.getElementById(
+"pageSubtitle"
+).innerText =
 "Configurazione piattaforma";
 
 content.innerHTML = `
+
+<div class="page-content">
 
 <h3>Impostazioni</h3>
 
 <button class="setting-btn"
 onclick="toggleDarkMode()">
-
 Dark Mode
-
 </button>
 
 <br><br>
 
 <button class="setting-btn"
 onclick="changeEquity()">
-
 Modifica Equity
-
 </button>
 
 <br><br>
 
 <button class="setting-btn"
 onclick="resetTrades()">
-
 Reset Completo
-
 </button>
+
+</div>
 
 `;
 
@@ -1040,7 +1047,13 @@ Reset Completo
 
 }
 
-/* CHANGE EQUITY */
+/* SETTINGS FUNCTIONS */
+
+function toggleDarkMode(){
+
+document.body.classList.toggle("dark");
+
+}
 
 function changeEquity(){
 
@@ -1052,10 +1065,7 @@ if(newEquity){
 equity =
 parseFloat(newEquity);
 
-localStorage.setItem(
-"equity",
-equity
-);
+saveTrades();
 
 updateStats();
 
@@ -1063,35 +1073,18 @@ updateStats();
 
 }
 
-/* DARK MODE */
-
-function toggleDarkMode(){
-
-document.body.classList.toggle("dark");
-
-}
-
-/* RESET */
-
 function resetTrades(){
 
 const confirmReset =
-confirm(
-"Vuoi eliminare tutto?"
-);
+confirm("Vuoi eliminare tutto?");
 
 if(confirmReset){
 
 trades = [];
 
-saveTrades();
-
 equity = initialCapital;
 
-localStorage.setItem(
-"equity",
-equity
-);
+saveTrades();
 
 loadTrades();
 
