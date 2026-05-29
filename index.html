@@ -1,17 +1,287 @@
+```html
 <!DOCTYPE html>
 <html lang="it">
 
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>EdgeJournal PRO</title>
-
-<link rel="stylesheet" href="style.css">
+<title>EdgeJournal PRO V3</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+display:flex;
+background:#f3f4f6;
+height:100vh;
+overflow:hidden;
+transition:0.3s;
+}
+
+/* DARK MODE */
+
+body.dark{
+background:#111827;
+color:white;
+}
+
+body.dark .card,
+body.dark .table-box,
+body.dark .page-content,
+body.dark .analytics-box,
+body.dark .month-box,
+body.dark canvas{
+background:#1f2937;
+color:white;
+}
+
+body.dark input,
+body.dark select{
+background:#111827;
+color:white;
+border:1px solid #374151;
+}
+
+body.dark td{
+border-bottom:1px solid #374151;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+width:250px;
+background:#111827;
+color:white;
+padding:30px 20px;
+display:flex;
+flex-direction:column;
+}
+
+.logo{
+font-size:30px;
+font-weight:bold;
+margin-bottom:40px;
+}
+
+.menu{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+.menu button{
+background:#1f2937;
+border:none;
+padding:15px;
+border-radius:12px;
+color:white;
+cursor:pointer;
+font-size:16px;
+transition:0.2s;
+text-align:left;
+}
+
+.menu button:hover{
+background:#374151;
+}
+
+/* MAIN */
+
+.main{
+flex:1;
+padding:40px;
+overflow:auto;
+}
+
+.title{
+font-size:38px;
+font-weight:bold;
+margin-bottom:10px;
+}
+
+.subtitle{
+color:#6b7280;
+margin-bottom:40px;
+}
+
+/* CARDS */
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:40px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.card-title{
+color:#6b7280;
+margin-bottom:10px;
+}
+
+.card-value{
+font-size:32px;
+font-weight:bold;
+}
+
+.green{
+color:#16a34a;
+}
+
+.red{
+color:#dc2626;
+}
+
+/* TABLE */
+
+.table-box{
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+margin-bottom:30px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+th, td{
+padding:15px;
+text-align:left;
+border-bottom:1px solid #e5e7eb;
+}
+
+/* FORM */
+
+.trade-form{
+display:flex;
+flex-wrap:wrap;
+gap:15px;
+margin-bottom:25px;
+margin-top:20px;
+}
+
+.trade-form input,
+.trade-form select{
+padding:12px;
+border-radius:10px;
+border:1px solid #d1d5db;
+font-size:16px;
+}
+
+.trade-form button{
+background:#111827;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:10px;
+cursor:pointer;
+font-size:16px;
+}
+
+.trade-form button:hover{
+background:#374151;
+}
+
+/* CONTENT */
+
+.page-content{
+background:white;
+padding:30px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* ANALYTICS */
+
+.analytics-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.analytics-box{
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.analytics-title{
+font-size:18px;
+margin-bottom:10px;
+color:#6b7280;
+}
+
+.analytics-value{
+font-size:28px;
+font-weight:bold;
+}
+
+/* CALENDAR */
+
+.month-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+gap:20px;
+margin-top:30px;
+}
+
+.month-box{
+background:white;
+padding:25px;
+border-radius:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.month-box h3{
+margin-bottom:15px;
+}
+
+/* SETTINGS */
+
+.setting-btn{
+margin-top:20px;
+padding:14px 20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-size:16px;
+background:#111827;
+color:white;
+}
+
+canvas{
+margin-top:20px;
+background:white;
+padding:20px;
+border-radius:20px;
+}
+
+.hidden{
+display:none;
+}
+
+</style>
 </head>
 
 <body>
@@ -64,30 +334,22 @@ Panoramica generale account
 
 <div class="card">
 <div class="card-title">Equity</div>
-<div class="card-value" id="equityValue">
-0€
-</div>
+<div class="card-value" id="equityValue">0€</div>
 </div>
 
 <div class="card">
 <div class="card-title">Profitto Totale</div>
-<div class="card-value" id="profitValue">
-0€
-</div>
+<div class="card-value" id="profitValue">0€</div>
 </div>
 
 <div class="card">
 <div class="card-title">Profit %</div>
-<div class="card-value" id="profitPercentValue">
-0%
-</div>
+<div class="card-value" id="profitPercentValue">0%</div>
 </div>
 
 <div class="card">
 <div class="card-title">Win Rate</div>
-<div class="card-value" id="winrateValue">
-0%
-</div>
+<div class="card-value" id="winrateValue">0%</div>
 </div>
 
 </div>
@@ -149,7 +411,646 @@ Aggiungi Trade
 
 </div>
 
-<script src="app.js"></script>
+<script>
+
+let trades =
+JSON.parse(localStorage.getItem("trades")) || [];
+
+let initialCapital =
+parseFloat(localStorage.getItem("initialCapital")) || 0;
+
+let equity =
+parseFloat(localStorage.getItem("equity")) || 0;
+
+if(initialCapital === 0){
+
+let capital =
+prompt("Inserisci il capitale iniziale");
+
+if(capital){
+
+initialCapital = parseFloat(capital);
+
+equity = initialCapital;
+
+localStorage.setItem(
+"initialCapital",
+initialCapital
+);
+
+localStorage.setItem(
+"equity",
+equity
+);
+
+}
+
+}
+
+function saveTrades(){
+
+localStorage.setItem(
+"trades",
+JSON.stringify(trades)
+);
+
+localStorage.setItem(
+"equity",
+equity
+);
+
+}
+
+function updateStats(){
+
+let totalProfit = 0;
+let wins = 0;
+
+trades.forEach(trade=>{
+
+const p =
+parseFloat(trade.profit);
+
+totalProfit += p;
+
+if(p > 0){
+wins++;
+}
+
+});
+
+const totalTrades =
+trades.length;
+
+let winrate = 0;
+
+if(totalTrades > 0){
+
+winrate =
+Math.round(
+(wins / totalTrades) * 100
+);
+
+}
+
+let profitPercent = 0;
+
+if(initialCapital > 0){
+
+profitPercent =
+(
+(totalProfit / initialCapital)
+*100
+).toFixed(2);
+
+}
+
+document.getElementById(
+"equityValue"
+).innerHTML =
+
+equity >=0
+? `<span class="green">${equity}€</span>`
+: `<span class="red">${equity}€</span>`;
+
+document.getElementById(
+"profitValue"
+).innerHTML =
+
+totalProfit >=0
+? `<span class="green">${totalProfit}€</span>`
+: `<span class="red">${totalProfit}€</span>`;
+
+document.getElementById(
+"profitPercentValue"
+).innerHTML =
+
+profitPercent >=0
+? `<span class="green">${profitPercent}%</span>`
+: `<span class="red">${profitPercent}%</span>`;
+
+document.getElementById(
+"winrateValue"
+).innerText =
+winrate + "%";
+
+}
+
+function loadTrades(){
+
+const table =
+document.getElementById("tradeTable");
+
+table.innerHTML = `
+<tr>
+<th>Data</th>
+<th>Asset</th>
+<th>Tipo</th>
+<th>Profit/Loss</th>
+<th>Azione</th>
+</tr>
+`;
+
+trades.forEach((trade,index)=>{
+
+const row = table.insertRow(-1);
+
+row.insertCell(0).innerHTML =
+trade.date;
+
+row.insertCell(1).innerHTML =
+trade.asset;
+
+row.insertCell(2).innerHTML =
+trade.type;
+
+row.insertCell(3).innerHTML =
+
+trade.profit >=0
+? `<span class="green">
+${trade.profit}€
+</span>`
+: `<span class="red">
+${trade.profit}€
+</span>`;
+
+row.insertCell(4).innerHTML =
+`<button onclick="deleteTrade(${index})">
+Elimina
+</button>`;
+
+});
+
+updateStats();
+
+}
+
+function addTrade(){
+
+const date =
+document.getElementById("dateInput").value;
+
+const asset =
+document.getElementById("assetInput").value;
+
+const type =
+document.getElementById("typeInput").value;
+
+const profit =
+parseFloat(
+document.getElementById("profitInput").value
+);
+
+if(date === "" || asset === ""){
+
+alert("Compila tutti i campi");
+
+return;
+
+}
+
+trades.push({
+date,
+asset,
+type,
+profit
+});
+
+equity += profit;
+
+saveTrades();
+
+loadTrades();
+
+document.getElementById("dateInput").value="";
+document.getElementById("assetInput").value="";
+document.getElementById("profitInput").value="";
+
+}
+
+function deleteTrade(index){
+
+equity -=
+parseFloat(trades[index].profit);
+
+trades.splice(index,1);
+
+saveTrades();
+
+loadTrades();
+
+}
+
+function showPage(page){
+
+document.getElementById(
+"dashboardPage"
+).classList.add("hidden");
+
+document.getElementById(
+"tradesPage"
+).classList.add("hidden");
+
+const content =
+document.getElementById(
+"dynamicContent"
+);
+
+content.innerHTML = "";
+
+if(page === "dashboard"){
+
+document.getElementById(
+"dashboardPage"
+).classList.remove("hidden");
+
+document.getElementById(
+"pageTitle"
+).innerText = "Dashboard";
+
+document.getElementById(
+"pageSubtitle"
+).innerText =
+"Panoramica generale account";
+
+}
+
+if(page === "trades"){
+
+document.getElementById(
+"tradesPage"
+).classList.remove("hidden");
+
+document.getElementById(
+"pageTitle"
+).innerText = "Trades";
+
+document.getElementById(
+"pageSubtitle"
+).innerText =
+"Gestione operazioni";
+
+}
+
+if(page === "analytics"){
+
+document.getElementById(
+"pageTitle"
+).innerText = "Analytics";
+
+document.getElementById(
+"pageSubtitle"
+).innerText =
+"Performance stile MyFXBook";
+
+let cumulative =
+initialCapital;
+
+let totalProfit = 0;
+
+const labels = [];
+const values = [];
+
+trades.forEach(trade=>{
+
+cumulative +=
+parseFloat(trade.profit);
+
+totalProfit +=
+parseFloat(trade.profit);
+
+labels.push(trade.date);
+
+values.push(cumulative);
+
+});
+
+let percentage = 0;
+
+if(initialCapital > 0){
+
+percentage =
+(
+(totalProfit / initialCapital)
+*100
+).toFixed(2);
+
+}
+
+content.innerHTML = `
+
+<div class="analytics-grid">
+
+<div class="analytics-box">
+<div class="analytics-title">
+Capitale Iniziale
+</div>
+<div class="analytics-value">
+${initialCapital}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Equity Attuale
+</div>
+<div class="analytics-value">
+${equity}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Profitto Totale
+</div>
+<div class="analytics-value">
+${totalProfit}€
+</div>
+</div>
+
+<div class="analytics-box">
+<div class="analytics-title">
+Profit %
+</div>
+<div class="analytics-value">
+${percentage}%
+</div>
+</div>
+
+</div>
+
+<canvas id="analyticsChart"></canvas>
+`;
+
+setTimeout(()=>{
+
+const ctx =
+document.getElementById(
+"analyticsChart"
+);
+
+new Chart(ctx,{
+
+type:"line",
+
+data:{
+
+labels:labels,
+
+datasets:[{
+
+label:"Equity Curve",
+
+data:values,
+
+borderWidth:3,
+
+fill:true,
+
+tension:0.4,
+
+pointRadius:2
+
+}]
+
+},
+
+options:{
+responsive:true
+}
+
+});
+
+},100);
+
+}
+
+if(page === "calendar"){
+
+document.getElementById(
+"pageTitle"
+).innerText = "Calendario";
+
+document.getElementById(
+"pageSubtitle"
+).innerText =
+"Statistiche mensili";
+
+const months = [
+"Gennaio","Febbraio","Marzo",
+"Aprile","Maggio","Giugno",
+"Luglio","Agosto","Settembre",
+"Ottobre","Novembre","Dicembre"
+];
+
+let monthData = {};
+
+months.forEach((m,index)=>{
+
+monthData[index+1]={
+name:m,
+profit:0,
+trades:0,
+wins:0
+};
+
+});
+
+trades.forEach(trade=>{
+
+const date =
+new Date(trade.date);
+
+const month =
+date.getMonth()+1;
+
+const profit =
+parseFloat(trade.profit);
+
+monthData[month].profit +=
+profit;
+
+monthData[month].trades++;
+
+if(profit>0){
+
+monthData[month].wins++;
+
+}
+
+});
+
+let html = `
+<div class="month-grid">
+`;
+
+for(let i=1;i<=12;i++){
+
+const data = monthData[i];
+
+let percentage = 0;
+
+if(data.trades>0){
+
+percentage =
+Math.round(
+(data.wins/data.trades)*100
+);
+
+}
+
+let monthEquity =
+initialCapital +
+data.profit;
+
+html += `
+
+<div class="month-box">
+
+<h3>${data.name}</h3>
+
+<p>
+Trade Totali:
+<strong>${data.trades}</strong>
+</p>
+
+<p>
+Profitto/Perdita:
+<strong class="${
+data.profit >=0
+? 'green'
+: 'red'
+}">
+${data.profit}€
+</strong>
+</p>
+
+<p>
+Equity:
+<strong class="${
+monthEquity >=0
+? 'green'
+: 'red'
+}">
+${monthEquity}€
+</strong>
+</p>
+
+<p>
+Win Rate:
+<strong>
+${percentage}%
+</strong>
+</p>
+
+</div>
+
+`;
+
+}
+
+html += `</div>`;
+
+content.innerHTML = html;
+
+}
+
+if(page === "settings"){
+
+document.getElementById(
+"pageTitle"
+).innerText = "Settings";
+
+document.getElementById(
+"pageSubtitle"
+).innerText =
+"Configurazione piattaforma";
+
+content.innerHTML = `
+
+<div class="page-content">
+
+<h3>Impostazioni</h3>
+
+<button class="setting-btn"
+onclick="toggleDarkMode()">
+Dark Mode
+</button>
+
+<br><br>
+
+<button class="setting-btn"
+onclick="changeEquity()">
+Modifica Equity
+</button>
+
+<br><br>
+
+<button class="setting-btn"
+onclick="resetTrades()">
+Reset Completo
+</button>
+
+</div>
+
+`;
+
+}
+
+}
+
+function toggleDarkMode(){
+
+document.body.classList.toggle("dark");
+
+}
+
+function changeEquity(){
+
+let newEquity =
+prompt("Inserisci nuova equity");
+
+if(newEquity){
+
+equity =
+parseFloat(newEquity);
+
+saveTrades();
+
+updateStats();
+
+}
+
+}
+
+function resetTrades(){
+
+const confirmReset =
+confirm("Vuoi eliminare tutto?");
+
+if(confirmReset){
+
+trades = [];
+
+equity = initialCapital;
+
+saveTrades();
+
+loadTrades();
+
+showPage("dashboard");
+
+}
+
+}
+
+loadTrades();
+
+showPage("dashboard");
+
+</script>
 
 </body>
 </html>
+```
+
